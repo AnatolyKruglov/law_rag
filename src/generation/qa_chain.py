@@ -62,7 +62,7 @@ class QASystem:
             else:
                 full_question = question
             
-            result = self.qa_chain({"query": full_question})
+            result = self.qa_chain.invoke({"query": full_question})
             return {
                 "answer": result["result"],
                 "source_documents": result.get("source_documents", []),

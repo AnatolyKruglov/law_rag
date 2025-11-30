@@ -3,6 +3,7 @@ from langchain.schema import Document
 from typing import List, Optional
 import logging
 from config.settings import settings
+from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
@@ -26,11 +27,11 @@ class VectorStoreManager:
                 logger.info(f"Initialized vector store with first {len(first_batch)} documents")
                 
                 # Add remaining documents in batches
-                for i in range(batch_size, len(documents), batch_size):
+                for i in tqdm(range(batch_size, len(documents), batch_size)):
                     batch = documents[i:i + batch_size]
                     batch_num = (i // batch_size) + 1
                     total_batches = (len(documents) - 1) // batch_size + 1
-                    logger.info(f"Adding batch {batch_num}/{total_batches} ({len(batch)} documents)")
+                    # logger.info(f"Adding batch {batch_num}/{total_batches} ({len(batch)} documents)")
                     
                     self.vector_store.add_documents(batch)
                     

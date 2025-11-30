@@ -6,6 +6,13 @@ import urllib.parse
 import logging
 import time
 import re
+import sys
+import os
+
+# Add the parent directory to path to import from processing
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+
+from src.processing.query_reformulator import QueryReformulator
 
 logger = logging.getLogger(__name__)
 
@@ -20,11 +27,21 @@ class ConsultantPlusLoader:
         self.session.headers.update({
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         })
+        self.query_reformulator = QueryReformulator()
+    
+    def _reformulate_query(self, natural_query: str) -> str:
+        """Reformulate natural language query into keyword search for Consultant Plus"""
+        logger.info(f"Reformulating query: '{natural_query}'")
+        reformulated_query = self.query_reformulator.reformulate_for_consultant_plus(natural_query)
+        logger.info(f"Reformulated query: '{reformulated_query}'")
+        return reformulated_query
     
     def search_documents(self, query: str) -> List[dict]:
         """Search documents on Консультант Плюс and return results with metadata"""
         try:
-            encoded_query = urllib.parse.quote(query.encode('utf-8'))
+            # Reformulate the query for better search results
+            search_query = self._reformulate_query(query)
+            encoded_query = urllib.parse.quote(search_query.encode('utf-8'))
             url = f"{self.search_url}?q={encoded_query}"
             
             logger.info(f"Fetching search results from: {url}")
@@ -96,7 +113,9 @@ class ConsultantPlusLoader:
                         'description': description,
                         'text_info': text_info,
                         'relevance_score': len(results) + 1,
-                        'position': i + 1
+                        'position': i + 1,
+                        'original_query': query,  # Store original query for reference
+                        'search_query': search_query  # Store reformulated query for reference
                     })
                     
                     logger.debug(f"Added result: {title[:50]}...")
@@ -188,7 +207,7 @@ class ConsultantPlusLoader:
     
     def load_documents(self, query: str) -> List[Document]:
         """Main method to load documents based on search query"""
-        logger.info(f"Searching Consultant Plus for: {query}")
+        logger.info(f"Searching Consultant Plus for: '{query}'")
         
         search_results = self.search_documents(query)
         if not search_results:
@@ -208,7 +227,9 @@ class ConsultantPlusLoader:
                     'description': result['description'],
                     'text_info': result['text_info'],
                     'relevance_score': result['relevance_score'],
-                    'position': result['position']
+                    'position': result['position'],
+                    'original_query': result['original_query'],  # Include original query
+                    'search_query': result['search_query']  # Include reformulated query
                 }
                 
                 document = Document(
