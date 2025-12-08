@@ -1,6 +1,7 @@
 # RAG Law Assistant
 
-A Retrieval-Augmented Generation (RAG) pipeline using YandexGPT, FAISS and Консультант+ Russian law database (via their site).
+A Retrieval-Augmented Generation (RAG) pipeline using YandexGPT, FAISS and Консультант+ Russian law database (via their site)
+<img width="1961" height="1165" alt="image" src="https://github.com/user-attachments/assets/16964623-a68f-4135-b787-d4eefd727fba" />
 
 ## Features
 
@@ -23,4 +24,5 @@ python scripts/run_pipeline.py
 ```
 
 or from notebook
+
 
