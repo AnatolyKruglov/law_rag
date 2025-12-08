@@ -1,6 +1,6 @@
 # RAG Assistant
 
-A Retrieval-Augmented Generation (RAG) pipeline using YandexGPT and FAISS.
+A Retrieval-Augmented Generation (RAG) pipeline using YandexGPT, FAISS and Консультант+ Russian law database (via their site).
 
 ## Features
 
@@ -21,4 +21,5 @@ pip install -r requirements.txt
 ```bash
 python scripts/run_pipeline.py
 ```
+
 or from notebook
