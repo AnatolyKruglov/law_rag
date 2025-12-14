@@ -5,7 +5,7 @@ import logging
 from config.settings import settings
 from tqdm import tqdm
 
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 
 class VectorStoreManager:
     """Manages FAISS vector store operations with optimized batch processing"""
@@ -19,12 +19,12 @@ class VectorStoreManager:
         try:
             if len(documents) > batch_size:
                 # Process in smaller batches to avoid rate limits
-                logger.info(f"Creating vector store with {len(documents)} documents in batches of {batch_size}")
+                # logger.info(f"Creating vector store with {len(documents)} documents in batches of {batch_size}")
                 
                 # Initialize with first batch
                 first_batch = documents[:batch_size]
                 self.vector_store = FAISS.from_documents(first_batch, self.embeddings)
-                logger.info(f"Initialized vector store with first {len(first_batch)} documents")
+                # logger.info(f"Initialized vector store with first {len(first_batch)} documents")
                 
                 # Add remaining documents in batches
                 for i in tqdm(range(batch_size, len(documents), batch_size)):
@@ -42,26 +42,26 @@ class VectorStoreManager:
             else:
                 self.vector_store = FAISS.from_documents(documents, self.embeddings)
             
-            logger.info(f"Created vector store with {len(documents)} documents")
+            # logger.info(f"Created vector store with {len(documents)} documents")
             return self.vector_store
         except Exception as e:
-            logger.error(f"Error creating vector store: {e}")
+            # logger.error(f"Error creating vector store: {e}")
             raise
     
     def save_vector_store(self, path: str):
         """Save vector store to disk"""
         if self.vector_store:
             self.vector_store.save_local(path)
-            logger.info(f"Vector store saved to {path}")
+            # logger.info(f"Vector store saved to {path}")
     
     def load_vector_store(self, path: str):
         """Load vector store from disk"""
         try:
             self.vector_store = FAISS.load_local(path, self.embeddings, allow_dangerous_deserialization=True)
-            logger.info(f"Vector store loaded from {path}")
+            # logger.info(f"Vector store loaded from {path}")
             return self.vector_store
         except Exception as e:
-            logger.error(f"Error loading vector store: {e}")
+            # logger.error(f"Error loading vector store: {e}")
             raise
     
     def get_retriever(self, search_type: str = "similarity", **kwargs):

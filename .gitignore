@@ -1,2 +1,4 @@
 .env
 rag_pipeline.log
+__pycache__
+*/__pycache__

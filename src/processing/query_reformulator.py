@@ -1,8 +1,5 @@
 from langchain_community.llms import YandexGPT
 from config.settings import settings
-import logging
-
-logger = logging.getLogger(__name__)
 
 class QueryReformulator:
     """Reformulates natural language questions into keyword queries for Consultant Plus"""
@@ -46,10 +43,10 @@ class QueryReformulator:
         
         try:
             reformulated_query = self.llm.invoke(prompt).strip()
-            logger.info(f"Query reformulated: '{natural_question}' -> '{reformulated_query}'")
+            print(f"  Переформулировка: '{natural_question}' -> '{reformulated_query}'")
             return reformulated_query
         except Exception as e:
-            logger.error(f"Error reformulating query: {e}")
+            # print(f"Error reformulating query: {e}")
             # Fallback: return original question without question words
             return self._fallback_reformulation(natural_question)
     

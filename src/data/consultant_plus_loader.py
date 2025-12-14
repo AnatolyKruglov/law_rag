@@ -14,8 +14,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from src.processing.query_reformulator import QueryReformulator
 
-logger = logging.getLogger(__name__)
-
 class ConsultantPlusLoader:
     """Loader for Консультант Плюс search results and document content"""
     
@@ -31,9 +29,7 @@ class ConsultantPlusLoader:
     
     def _reformulate_query(self, natural_query: str) -> str:
         """Reformulate natural language query into keyword search for Consultant Plus"""
-        logger.info(f"Reformulating query: '{natural_query}'")
         reformulated_query = self.query_reformulator.reformulate_for_consultant_plus(natural_query)
-        logger.info(f"Reformulated query: '{reformulated_query}'")
         return reformulated_query
     
     def search_documents(self, query: str) -> List[dict]:
@@ -44,7 +40,6 @@ class ConsultantPlusLoader:
             encoded_query = urllib.parse.quote(search_query.encode('utf-8'))
             url = f"{self.search_url}?q={encoded_query}"
             
-            logger.info(f"Fetching search results from: {url}")
             response = self.session.get(url, timeout=30)
             response.raise_for_status()
             
@@ -59,24 +54,24 @@ class ConsultantPlusLoader:
             # Find search results
             search_results = soup.find('ol', class_='search-results')
             if not search_results:
-                logger.warning("No search results found on page")
+                print("No search results found on page")
                 return results
             
             items = search_results.find_all('li', class_=re.compile('search-results__item'))[:self.max_results]
-            logger.info(f"Found {len(items)} search result items")
+            # print(f"Found {len(items)} search result items")
             
             for i, item in enumerate(items):
                 try:
                     # Skip revoked documents and unavailable ones
                     item_classes = item.get('class', [])
                     if 'search-results__item_revoke' in item_classes:
-                        logger.debug(f"Skipping revoked document at position {i}")
+                        # print(f"Skipping revoked document at position {i}")
                         continue
                     
                     # Check availability
                     availability_icon = item.find('i', class_='search-results__icon')
                     if availability_icon and 'недоступен' in availability_icon.get('title', ''):
-                        logger.debug(f"Skipping unavailable document at position {i}")
+                        # print(f"Skipping unavailable document at position {i}")
                         continue
                     
                     link = item.find('a', class_='search-results__link')
@@ -118,23 +113,21 @@ class ConsultantPlusLoader:
                         'search_query': search_query  # Store reformulated query for reference
                     })
                     
-                    logger.debug(f"Added result: {title[:50]}...")
-                    
                 except Exception as e:
-                    logger.warning(f"Error processing search result {i}: {e}")
+                    # print(f"Error processing search result {i}: {e}")
                     continue
             
-            logger.info(f"Processed {len(results)} valid search results")
+            # print(f"Processed {len(results)} valid search results")
             return results
             
         except Exception as e:
-            logger.error(f"Error searching Consultant Plus: {e}")
+            # print(f"Error searching Consultant Plus: {e}")
             return []
     
     def load_document_content(self, url: str) -> Optional[str]:
         """Load and extract text content from a document URL"""
         try:
-            logger.debug(f"Loading document content from: {url}")
+            # print(f"Loading document content from: {url}")
             response = self.session.get(url, timeout=30)
             response.raise_for_status()
             
@@ -194,30 +187,28 @@ class ConsultantPlusLoader:
                 
                 # Basic validation - if content is too short, it might be an error page
                 if len(content) < 50:
-                    logger.warning(f"Document content too short ({len(content)} chars), may be invalid")
+                    # print(f"Document content too short ({len(content)} chars), may be invalid")
                     return None
                 
-                logger.debug(f"Extracted {len(content)} characters from document")
+                # print(f"Extracted {len(content)} characters from document")
             
             return content
             
         except Exception as e:
-            logger.error(f"Error loading document from {url}: {e}")
+            # print(f"Error loading document from {url}: {e}")
             return None
     
     def load_documents(self, query: str) -> List[Document]:
         """Main method to load documents based on search query"""
-        logger.info(f"Searching Consultant Plus for: '{query}'")
+        # print(f"Searching Consultant Plus for: '{query}'")
         
         search_results = self.search_documents(query)
         if not search_results:
-            logger.warning("No search results found")
+            # print("No search results found")
             return []
         
         documents = []
         for i, result in enumerate(search_results):
-            logger.info(f"Loading document {i+1}/{len(search_results)}: {result['title'][:80]}...")
-            
             content = self.load_document_content(result['url'])
             if content:
                 # Create LangChain Document with metadata
@@ -237,12 +228,10 @@ class ConsultantPlusLoader:
                     metadata=metadata
                 )
                 documents.append(document)
-                logger.info(f"Successfully loaded document {i+1}")
             else:
-                logger.warning(f"Failed to load content for document {i+1}")
+                # print(f"Failed to load content for document {i+1}")
+                pass
             
             # Be respectful with requests
             time.sleep(1.5)
-        
-        logger.info(f"Loaded {len(documents)} documents from Consultant Plus")
         return documents
