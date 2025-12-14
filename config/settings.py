@@ -47,7 +47,7 @@ class Settings:
     SEARCH_MODE = SearchMode.BOTH  # consultant_only, pptx_only, both
     
     # PPTX folder path
-    PPTX_FOLDER_PATH = r"D:\Документы\MIPT\право"
+    PPTX_FOLDER_PATH = os.getenv("PPTX_FOLDER_PATH")
     
     # Chunking strategy
     PPTX_CHUNK_BY_SLIDE = True  # Создавать чанки по слайдам

@@ -5,7 +5,7 @@ A Retrieval-Augmented Generation (RAG) pipeline using YandexGPT, FAISS and Ко�
 
 ## Features
 
-- ~~Document loading and preprocessing from PDFs~~
+- Document loading and preprocessing from PowerPoint presentations
 - Intelligent text splitting with multiple strategies
 - Vector embeddings using YandexGPT
 - FAISS vector store for efficient similarity search
@@ -23,6 +23,4 @@ pip install -r requirements.txt
 python scripts/run_pipeline.py
 ```
 
-or from notebook
-
-
+or in notebook run.ipynb
